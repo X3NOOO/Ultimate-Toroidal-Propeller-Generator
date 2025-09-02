@@ -11,18 +11,23 @@ module toroidal_propeller(
     blade_attack_angle = 35,        // blade attack angle
     blade_offset = -6,              // blade distance from propeller axis
     blade_safe_direction = "PREV",  // indicates if a blade must delete itself from getting into the previous (PREV) or the next blade (NEXT).
-    hub_height = 6,                 // Hub height
+    hub_height = 6,                 // hub height
     hub_d = 16,                     // hub diameter
     hub_screw_d = 5.5,              // hub screw diameter
     hub_notch_height = 0,           // height for the notch 
-    hub_notch_d = 0                 // diameter for the notch
+    hub_notch_d = 0,                // diameter for the notch
+    flow_direction = "SUCK"         // airflow: "SUCK" or "BLOW"
 ){
     l = height / tan(blade_attack_angle);
     p = 2 * PI * blade_length/2;
 
+    flow_mult =
+        flow_direction == "SUCK" ?  1 :
+        flow_direction == "BLOW" ? -1 : 1;
+
     difference(){
         union(){
-            linear_extrude(height=height, twist=l/p  * 360, convexity=2){
+            linear_extrude(height=height, twist=flow_mult * (l/p) * 360, convexity=2){
                 blades2D(
                     n = blades,
                     height = height,
@@ -30,11 +35,11 @@ module toroidal_propeller(
                     width = blade_width,
                     thickness = blade_thickness,
                     hole_offset = blade_hole_offset,
-                    blade_direction = blade_attack_angle > 0 ? 1 : -1,
+                    blade_direction = (blade_attack_angle > 0 ? 1 : -1) * flow_mult,
                     offset = blade_offset,
-                    blade_safe_direction = 
-                        blade_safe_direction == "PREV"? 1 : 
-                        blade_safe_direction == "NEXT"? -1: 
+                    blade_safe_direction =
+                        blade_safe_direction == "PREV"? 1 :
+                        blade_safe_direction == "NEXT"? -1:
                         0 // default
                 );
             }
@@ -53,11 +58,11 @@ module blades2D(n, height, length, width, thickness, hole_offset, blade_directio
         difference(){
             rotate([0,0,a*(360/n)]){
                 translate([offset,0,0]) blade2D(
-                    height = height,        // height
-                    length = length,        // blade length in mm
-                    width = width,          // blade width in mm
-                    thickness = thickness,  // blade thickness in mm
-                    hole_offset = hole_offset    // blade hole offset
+                    height = height,
+                    length = length,
+                    width = width,
+                    thickness = thickness,
+                    hole_offset = hole_offset
                 );
             }
 
@@ -65,11 +70,9 @@ module blades2D(n, height, length, width, thickness, hole_offset, blade_directio
             rotate([0,0, (a + cw_ccw_mult) * (360/n)])
                 translate([length/2 + hole_offset + offset,0,0])
                     scale([1, (width-thickness)/(length-thickness)]) circle(d=length-thickness);
-
         }
     }
 }
-
 
 module blade2D (height, length, width, thickness, hole_offset){
     difference(){
