@@ -50,11 +50,12 @@ toroidal_propeller(
     blade_attack_angle = 35,        // blade attack angle | Default(35)
     blade_offset = -6,              // blade distance from propeller axis | Default(-6)
     blade_safe_direction = "PREV",  // indicates if a blade must delete itself from getting into the previous (PREV) or the next blade (NEXT) | Default("PREV")
-    hub_height = 6,                 // Hub height | Default(6)
+    hub_height = 6,                 // hub height | Default(6)
     hub_d = 16,                     // hub diameter | Default(16)
     hub_screw_d = 5.5,              // hub screw diameter | Default(5.5)
-    hub_notch_height = 0,           // height for the notch | Default(0 = [No support])
-    hub_notch_d = 0                 // diameter for the notch | Default(0 = [No support])
+    hub_notch_height = 0,           // bottom closure/notch height | Default(0 = none)
+    hub_notch_d = 0,                // bottom notch diameter (any size; 0 closes bottom by height) | Default(0)
+    flow_direction = "SUCK"         // airflow: "SUCK" or "BLOW" | Default("SUCK")
 );
 ```
 
@@ -67,12 +68,13 @@ toroidal_propeller(
 - `blade_hole_offset`: displacement between outer and inner sides of the blades. It shouldn't be greater than thickness.
 - `blade_attack_angle`: this sets how is going to be the attack angle. A positive value will generate a CW propeller and a negative one a CCW.
 - `blade_offset`: blade distance from propeller axis
-- `safe_blades_direction`: indicates if a blade must delete itself from getting into the previous or the next blade.
+- `blade_safe_direction`: indicates if a blade must delete itself from getting into the previous or the next blade.
 - `hub_height`: hub or holder height.
 - `hub_d`: hub or holder diameter.
 - `hub_screw_d`: motor axis screw diameter.
-- `hub_notch_height`: support hole height.
-- `hub_notch_d`: support hole diameter.
+- `hub_notch_height`: bottom closure/notch height. When `hub_notch_d = 0`, this closes the screw hole from the bottom by this height.
+- `hub_notch_d`: bottom notch diameter. Can be any size (including between 0 and `hub_screw_d`). If 0, only the bottom is closed by `hub_notch_height`.
+- `flow_direction`: airflow direction, either `"SUCK"` or `"BLOW"`. Affects twist direction and handedness.
 
 That's all! Render it with this values with OpenSCAD and you will get something similar to this:
 
