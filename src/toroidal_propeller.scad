@@ -25,6 +25,9 @@ module toroidal_propeller(
         flow_direction == "SUCK" ?  1 :
         flow_direction == "BLOW" ? -1 : 1;
 
+    notch_h = (hub_notch_height > 0) ? min(hub_notch_height, hub_height) : 0;
+    screw_top_h = hub_height - notch_h;
+
     difference(){
         union(){
             linear_extrude(height=height, twist=flow_mult * (l/p) * 360, convexity=2){
@@ -46,10 +49,15 @@ module toroidal_propeller(
 
             cylinder(d = hub_d, h = hub_height);
         }
-        translate([0,0,-eps]){
-            cylinder(d = hub_screw_d, h = hub_height + 2*eps);
-            cylinder(d = hub_notch_d, h = hub_notch_height + eps);
-        }
+
+
+        if (screw_top_h > 0)
+            translate([0,0, notch_h - eps])
+                cylinder(d = hub_screw_d, h = screw_top_h + 2*eps);
+
+        if (hub_notch_d > 0 && notch_h > 0)
+            translate([0,0,-eps])
+                cylinder(d = hub_notch_d, h = notch_h + 2*eps);
     }
 }
 
